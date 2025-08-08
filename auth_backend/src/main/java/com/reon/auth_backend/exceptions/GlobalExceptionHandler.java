@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,6 +57,22 @@ public class GlobalExceptionHandler {
         logger.error(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
         errors.put("message", "OTP has expired");
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleException(BadCredentialsException exception) {
+        logger.error(exception.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Bad credentials");
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleException(DisabledException exception) {
+        logger.error(exception.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Account is disabled. Contact your administrator.");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

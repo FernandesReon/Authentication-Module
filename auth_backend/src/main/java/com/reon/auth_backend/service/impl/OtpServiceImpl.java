@@ -10,6 +10,7 @@ import com.reon.auth_backend.service.EmailService;
 import com.reon.auth_backend.service.OtpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -19,10 +20,12 @@ public class OtpServiceImpl implements OtpService {
     private final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public OtpServiceImpl(UserRepository userRepository, EmailService emailService) {
+    public OtpServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Generate 6-digits OTP
@@ -173,7 +176,7 @@ public class OtpServiceImpl implements OtpService {
         verificationToken.setToken(null);
         verificationToken.setExpiryDate(0L);
 
-//        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         try {

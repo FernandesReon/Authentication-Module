@@ -1,12 +1,18 @@
 package com.reon.auth_backend.controllers;
 
+import com.reon.auth_backend.dto.UserLoginDTO;
 import com.reon.auth_backend.dto.UserRequestDTO;
 import com.reon.auth_backend.dto.UserResponseDTO;
+import com.reon.auth_backend.jwt.JwtResponse;
 import com.reon.auth_backend.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +37,37 @@ public class AuthController {
             return ResponseEntity.ok().body(register);
         } catch (Exception e) {
             log.error("Controller:: Creating user failed", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
+        try {
+            log.info("Controller:: Login user {}", userLoginDTO);
+            JwtResponse jwtToken = userService.authenticateUser(userLoginDTO);
+
+            try {
+                Cookie cookie = new Cookie("JWT", jwtToken.getToken());
+
+                cookie.setHttpOnly(true);
+                cookie.setSecure(false);    // for testing purpose false - else true
+                cookie.setPath("/");
+                cookie.setMaxAge(24 * 60 * 60);
+                cookie.setAttribute("SameSite", "Strict");
+
+                response.addCookie(cookie);
+                log.info("Controller:: Cookie added successfully");
+            } catch (Exception e) {
+                log.error("Controller:: Error while adding cookie", e);
+                throw new RuntimeException(e);
+            }
+
+            log.info("Controller:: Successful login {}", jwtToken);
+            return ResponseEntity.ok().body(jwtToken);
+        } catch (BadCredentialsException | DisabledException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e){
             throw new RuntimeException(e);
         }
     }

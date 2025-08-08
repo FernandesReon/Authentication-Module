@@ -35,6 +35,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RestrictionException.class)
+    public ResponseEntity<Map<String, String>> handleException(RestrictionException exception) {
+        logger.error(exception.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Operation not allowed");
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleException(UserNotFoundException exception) {
         logger.error(exception.getMessage());

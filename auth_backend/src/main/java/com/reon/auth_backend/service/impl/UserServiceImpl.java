@@ -5,6 +5,7 @@ import com.reon.auth_backend.dto.UserProfileDTO;
 import com.reon.auth_backend.dto.UserRequestDTO;
 import com.reon.auth_backend.dto.UserResponseDTO;
 import com.reon.auth_backend.exceptions.EmailAlreadyExistsException;
+import com.reon.auth_backend.exceptions.RestrictionException;
 import com.reon.auth_backend.exceptions.UserNotFoundException;
 import com.reon.auth_backend.jwt.JwtResponse;
 import com.reon.auth_backend.jwt.JwtUtils;
@@ -70,12 +71,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO) {
-        return null;
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException("User not found")
+        );
+
+        if (userRequestDTO.getEmail() != null && !userRequestDTO.getEmail().isBlank()){
+            throw new RestrictionException("Updating email is not allowed");
+        }
+        try {
+            log.info("Service:: Updating user {}", user);
+
+            UserMapper.updateUser(user, userRequestDTO);
+            user.preUpdate();
+            User updatedUser = userRepository.save(user);
+
+            log.info("Service:: Updated user {}", user);
+            return UserMapper.responseToUser(updatedUser);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void deleteUser(Long id) {
-
+        log.debug("Service:: Request to delete user: {}", id);
+        userRepository.deleteById(id);
     }
 
     @Override

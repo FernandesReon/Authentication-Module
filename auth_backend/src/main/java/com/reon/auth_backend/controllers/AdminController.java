@@ -24,14 +24,9 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDTO>> fetchUsers(@RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size){
-        try {
-            log.info("Controller:: Fetching all users from pageNo={} pageSize={}", page, size);
-            Page<UserResponseDTO> allUsers = adminService.getUsers(page, size);
-            return ResponseEntity.ok().body(allUsers);
-        } catch (Exception e) {
-            log.error("Controller:: Fetching all users failed", e);
-            throw new RuntimeException(e);
-        }
+        log.info("Controller:: Fetching all users from pageNo={} pageSize={}", page, size);
+        Page<UserResponseDTO> allUsers = adminService.getUsers(page, size);
+        return ResponseEntity.ok().body(allUsers);
     }
 
     @GetMapping("/id/{id}")

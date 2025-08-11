@@ -30,45 +30,34 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        try {
-            log.info("Controller:: Creating user {}", userRequestDTO);
-            UserResponseDTO register = userService.registerUser(userRequestDTO);
-            log.info("Controller:: Saving user {}", register);
-            return ResponseEntity.ok().body(register);
-        } catch (Exception e) {
-            log.error("Controller:: Creating user failed", e);
-            throw new RuntimeException(e);
-        }
+        log.info("Controller:: Creating user {}", userRequestDTO);
+        UserResponseDTO register = userService.registerUser(userRequestDTO);
+        log.info("Controller:: Saving user {}", register);
+        return ResponseEntity.ok().body(register);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
+        log.info("Controller:: Login user {}", userLoginDTO);
+        JwtResponse jwtToken = userService.authenticateUser(userLoginDTO);
+
         try {
-            log.info("Controller:: Login user {}", userLoginDTO);
-            JwtResponse jwtToken = userService.authenticateUser(userLoginDTO);
+            Cookie cookie = new Cookie("JWT", jwtToken.getToken());
 
-            try {
-                Cookie cookie = new Cookie("JWT", jwtToken.getToken());
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);    // for testing purpose false - else true
+            cookie.setPath("/");
+            cookie.setMaxAge(24 * 60 * 60);
+            cookie.setAttribute("SameSite", "Strict");
 
-                cookie.setHttpOnly(true);
-                cookie.setSecure(false);    // for testing purpose false - else true
-                cookie.setPath("/");
-                cookie.setMaxAge(24 * 60 * 60);
-                cookie.setAttribute("SameSite", "Strict");
-
-                response.addCookie(cookie);
-                log.info("Controller:: Cookie added successfully");
-            } catch (Exception e) {
-                log.error("Controller:: Error while adding cookie", e);
-                throw new RuntimeException(e);
-            }
-
-            log.info("Controller:: Successful login {}", jwtToken);
-            return ResponseEntity.ok().body(jwtToken);
-        } catch (BadCredentialsException | DisabledException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e){
+            response.addCookie(cookie);
+            log.info("Controller:: Cookie added successfully");
+        } catch (Exception e) {
+            log.error("Controller:: Error while adding cookie", e);
             throw new RuntimeException(e);
         }
+
+        log.info("Controller:: Successful login {}", jwtToken);
+        return ResponseEntity.ok().body(jwtToken);
     }
 }

@@ -29,58 +29,58 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleException(EmailAlreadyExistsException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Email already exists");
+        errors.put("email", "User with email already exists");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RestrictionException.class)
     public ResponseEntity<Map<String, String>> handleException(RestrictionException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Operation not allowed");
+        errors.put("restriction", "Operation not allowed");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleException(UserNotFoundException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "User not found");
+        errors.put("user", "User not found");
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 
     // OTP based exception handlers
     @ExceptionHandler(InvalidOTPException.class)
     public ResponseEntity<Map<String, String>> handleException(InvalidOTPException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Invalid OTP");
+        errors.put("invalid", "Invalid OTP. Please try again.");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(OTPExpiredException.class)
     public ResponseEntity<Map<String, String>> handleException(OTPExpiredException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "OTP has expired");
+        errors.put("expired", "OTP expired. Request a new one.");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, String>> handleException(BadCredentialsException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Bad credentials");
+        errors.put("credentials", "Provided credentials are incorrect.");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<Map<String, String>> handleException(DisabledException exception) {
-        logger.error(exception.getMessage());
+        logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Account is disabled. Contact your administrator.");
+        errors.put("disabled", "Account is disabled. Contact your administrator.");
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

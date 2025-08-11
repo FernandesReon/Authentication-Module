@@ -47,7 +47,7 @@ public class UserMapper {
             existingUser.setName(dto.getName());
         }
 
-        if (dto.getPassword() != null && dto.getPassword().isBlank()) {
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             existingUser.setPassword(dto.getPassword());
         }
     }

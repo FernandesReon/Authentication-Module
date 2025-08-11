@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,7 +45,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
-            log.error("Email already exists");
             throw new EmailAlreadyExistsException("User already exists");
         }
 
@@ -101,20 +99,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public JwtResponse authenticateUser(UserLoginDTO loginDTO) {
-        try {
-            log.info("Service:: Authenticating user {}", loginDTO);
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwtToken = jwtUtils.generateToken((User) userDetails);
+        log.info("Service:: Authenticating user {}", loginDTO);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwtToken = jwtUtils.generateToken((User) userDetails);
 
-            return new JwtResponse(jwtToken);
-        } catch (AuthenticationException e) {
-            log.error("Service:: Authentication failed", e);
-            throw new RuntimeException(e);
-        }
-
+        return new JwtResponse(jwtToken);
     }
 
     @Override

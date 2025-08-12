@@ -116,7 +116,7 @@ public class OtpServiceImpl implements OtpService {
         String resetOTP = generateOTP();
         verificationToken.setToken(resetOTP);
 
-        long resetOTPExpiry = System.currentTimeMillis() +  (5 * 60 * 1000);
+        long resetOTPExpiry = System.currentTimeMillis() +  (15 * 60 * 1000);
         verificationToken.setExpiryDate(resetOTPExpiry);
 
         verificationToken.setUser(user);

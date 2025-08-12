@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,5 +57,24 @@ public class AuthController {
 
         log.info("Controller:: Successful login {}", jwtToken);
         return ResponseEntity.ok().body(jwtToken);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        try {
+            Cookie cookie = new Cookie("JWT", null);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            cookie.setPath("/");
+            cookie.setMaxAge(0);
+            cookie.setAttribute("SameSite", "Strict");
+            response.addCookie(cookie);
+
+            log.info("Controller:: Cookie removed successfully");
+            return ResponseEntity.ok().body("Logout successful");
+        } catch (Exception e) {
+            log.error("Controller:: Error while removing cookie", e);
+            throw new RuntimeException(e);
+        }
     }
 }

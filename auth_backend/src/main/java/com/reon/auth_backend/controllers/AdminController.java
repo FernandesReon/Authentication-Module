@@ -23,7 +23,7 @@ public class AdminController {
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDTO>> fetchUsers(@RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size){
+                                                            @RequestParam(defaultValue = "5") int size){
         log.info("Controller:: Fetching all users from pageNo={} pageSize={}", page, size);
         Page<UserResponseDTO> allUsers = adminService.getUsers(page, size);
         return ResponseEntity.ok().body(allUsers);

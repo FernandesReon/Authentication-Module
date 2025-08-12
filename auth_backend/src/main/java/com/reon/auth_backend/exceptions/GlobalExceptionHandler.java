@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleException(UserNotFoundException exception) {
         logger.info(exception.getMessage());
         Map<String, String> errors = new HashMap<>();
-        errors.put("user", "User not found");
+        errors.put("user", "User not found with this email");
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 

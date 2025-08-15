@@ -1,9 +1,9 @@
-import {Link, useNavigate} from "react-router-dom";
-import {useState} from "react";
-import {login} from "../../services/auth.js";
+import {Link} from "react-router-dom";
+import {useContext, useState} from "react";
+import {AuthContext} from "../../context/AuthContext.jsx";
 
 const LoginPage = () => {
-    const navigate = useNavigate();
+    const { login } = useContext(AuthContext)
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -36,21 +36,20 @@ const LoginPage = () => {
         }
 
         setLoading(true);
-        login(formData)
-            .then((response) => {
-                console.log("Response", response);
-                setFormData({ email: "", password: "" });
-                navigate("/");
-            })
-            .catch((error) => {
-                console.error("Error", error);
-                if (error.response?.data) {
-                    setError({ errors: error.response.data, isError: true });
-                }
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        try {
+            await login(formData);
+            setFormData({ email: "", password: "" });
+        } catch (error) {
+            if (error.response?.status === 401) {
+                setError({ errors: { credentials: "Invalid email or password" }, isError: true });
+            } else if (error.response?.data) {
+                setError({ errors: error.response.data, isError: true });
+            } else {
+                setError({ errors: { credentials: "Login failed. Please try again." }, isError: true });
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     return(

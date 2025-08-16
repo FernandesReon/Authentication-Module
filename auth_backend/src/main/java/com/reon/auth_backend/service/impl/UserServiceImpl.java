@@ -16,6 +16,7 @@ import com.reon.auth_backend.service.OtpService;
 import com.reon.auth_backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -42,6 +44,8 @@ public class UserServiceImpl implements UserService {
         this.authenticationManager = authenticationManager;
     }
 
+    @Transactional
+    @CacheEvict(value = {"users", "usersByEmail"}, allEntries = true)
     @Override
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
@@ -67,6 +71,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.responseToUser(savedUser);
     }
 
+    @CacheEvict(value = {"users", "usersByEmail"}, allEntries = true)
     @Override
     public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO) {
         User user = userRepository.findById(id).orElseThrow(
@@ -91,6 +96,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @CacheEvict(value = {"users", "usersByEmail"}, allEntries = true)
     @Override
     public void deleteUser(Long id) {
         log.debug("Service:: Request to delete user: {}", id);

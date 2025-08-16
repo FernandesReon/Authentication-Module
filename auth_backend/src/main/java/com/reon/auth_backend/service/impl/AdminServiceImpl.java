@@ -8,6 +8,8 @@ import com.reon.auth_backend.repository.UserRepository;
 import com.reon.auth_backend.service.AdminService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
         return users.map(UserMapper::responseToUser);
     }
 
+    @Cacheable(value = "users", key = "#id")
     @Override
     public UserResponseDTO fetchUser(Long id) {
         log.info("Service:: Fetching user with id: {}", id);
@@ -39,6 +42,7 @@ public class AdminServiceImpl implements AdminService {
         return UserMapper.responseToUser(user);
     }
 
+    @Cacheable(value = "usersByEmail", key = "#email")
     @Override
     public UserResponseDTO fetchUserByEmail(String email) {
         log.info("Service:: Fetching user with email: {}", email);
@@ -48,6 +52,7 @@ public class AdminServiceImpl implements AdminService {
         return UserMapper.responseToUser(user);
     }
 
+    @CacheEvict(value = {"users", "usersByEmail"}, allEntries = true)
     @Override
     public UserResponseDTO promoteUser(Long id, User.Role role) {
         log.info("Service:: Promoting user with id: {}, to role: {}", id, role);

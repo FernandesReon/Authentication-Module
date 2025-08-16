@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    @Value("${token.expiration.time}")
+    private long tokenExpirationTime;
+
     private final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final UserService userService;
 
@@ -45,7 +49,7 @@ public class AuthController {
             cookie.setHttpOnly(true);
             cookie.setSecure(false);    // for testing purpose false - else true
             cookie.setPath("/");
-            cookie.setMaxAge(24 * 60 * 60);
+            cookie.setMaxAge((int) (tokenExpirationTime / 1000));
             cookie.setAttribute("SameSite", "Strict");
 
             response.addCookie(cookie);
